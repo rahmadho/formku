@@ -1,0 +1,35 @@
+feat(m1-m2): tipe/util bersama + auth multi-tenant (owner/tenant API)
+
+Gelombang 1 FormKu:
+
+M1 — fondasi tipe & util (dibuat sub-agent, diverifikasi ulang):
+- src/lib/types.ts: tipe & konstanta bersama (Form/Section/Question/Response,
+  FormMode, QuestionType, TimerScope, dll)
+- src/lib/util/{sanitize,shuffle,validate,score}.ts: sanitasi teks, acak
+  deterministik (seededShuffle/LCG), validasi, dan penghitungan skor
+  (radio/checkbox/number/teks dengan normalisasi)
+- 153 uji unit (vitest), semuanya lulus
+
+M2 — auth & API owner/tenant (dibuat sub-agent, diperbaiki agent utama):
+- src/lib/server/auth.ts: requireOwner, requireTenant (scrypt + cek status/expired),
+  rateLimit in-memory, ApiError + handleAuthError
+- src/routes/api/owner/tenants: GET/POST/DELETE (api_key tampil sekali, tanpa hash bocor)
+- src/routes/api/tenant/me: identitas tenant + statistik
+
+Perbaikan FONDASI oleh agent utama (wajib, ditemukan saat verifikasi mandiri):
+- SvelteKit 3.0.x beta: modul env virtual menghasilkan file generated 0 byte,
+  sehingga env.OWNER_PASSWORD selalu undefined. Solusi: src/lib/server/env.ts
+  membaca process.env langsung (andal, tidak rapuh terhadap API beta).
+- Buang shim tipe palsu src/ambient.d.ts (hanya deklarasi, tanpa runtime ->
+  menyembunyikan bug env saat type-check lolos).
+- tsconfig.json: tulis mandiri (extends "$app/tsconfig" tidak ada di Kit 3 beta).
+- vite.config.ts: sveltekit() + adapter-node + alias $lib.
+- +layout.svelte: pakai $lib (SvelteKit 3 hapus #lib/$lib bawaan).
+- sanitize.ts: maxLength bertipe number (mengatasi literal type over-narrow).
+
+Verifikasi mandiri (bukan klaim sub-agent):
+- npm run check: 0 error (1 warning a11y)
+- npm test: 153/153 lulus
+- npm run build: sukses (adapter-node)
+- curl end-to-end: tanpa auth 401; buat tenant 200 + api_key; daftar tanpa
+  hash bocor; tenant/me key benar 200; key salah 401

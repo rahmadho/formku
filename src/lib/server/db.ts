@@ -3,7 +3,7 @@
  * Semua akses DB lewat sini. SSL wajib (rejectUnauthorized:false).
  */
 import pg from 'pg';
-import { env } from '$env/dynamic/private';
+import { env } from './env.js';
 
 const useSsl = (env.PGSSL ?? 'true') !== 'false';
 
