@@ -11,8 +11,26 @@
 - **Port dev/produksi**: `3400`
 - **Adapter**: `@sveltejs/adapter-node`
 - **Style**: Svelte 5 runes (`$state`, `$derived`, `$props`), TypeScript
-- **DB**: PostgreSQL, env `DATABASE_URL` (fallback var terpisah)
-- **Env** (`.env`, JANGAN commit):
+- **SvelteKit**: **3.0.x (beta)** — API berbeda dari v2!
+
+### ⚠️ WAJIB: cara baca environment
+**JANGAN** pakai `$env/dynamic/private`, `$app/env/private`, atau `$env/*`.
+Di Kit 3 beta modul itu menghasilkan file generated **0 byte** → nilainya undefined.
+
+**BENAR** — impor helper env internal proyek:
+```ts
+import { env } from '$lib/server/env.js';   // atau path relatif './env.js'
+env.OWNER_PASSWORD, env.PGDATABASE, env.PORT, ...
+```
+`src/lib/server/env.ts` membaca `process.env` langsung (andal).
+
+### ⚠️ WAJIB: alias & config
+- Alias **`$lib`** berfungsi (didaftarkan di `vite.config.ts` → `alias: { $lib: 'src/lib' }`).
+- `svelte.config.js` **TIDAK ADA** (Kit 3 pakai `vite.config.ts`). Jangan buat.
+- `tsconfig.json` ditulis mandiri (JANGAN `extends: "$app/tsconfig"` — tidak ada).
+- Impor antar-file server: pakai akhiran **`.js`** (mis. `import { one } from '$lib/server/db.js'`).
+
+### Env (`.env`, JANGAN commit):
   ```
   PGHOST=postgresql_dev
   PGPORT=5432
@@ -23,10 +41,9 @@
   PORT=3400
   OWNER_PASSWORD=<rahasia>
   ```
-  > **PENTING**: user `vibe` TIDAK punya izin `CREATE DATABASE`. Jadi FormKu memakai
-  > database yang sudah ada (`vibe-undangan-nikah`) dengan **schema terpisah `formku`**
-  > → isolasi penuh dari tabel proyek undangan. Migrasi sudah diterapkan (9 tabel).
-  > Jalankan ulang: `node scripts/db-setup.mjs`
+  > **PENTING**: user `vibe` TIDAK punya izin `CREATE DATABASE`. FormKu memakai DB
+  > `vibe-undangan-nikah` dengan **schema terpisah `formku`** → isolasi penuh.
+  > Migrasi sudah diterapkan (9 tabel). Jalankan ulang: `node scripts/db-setup.mjs`
 
 ---
 

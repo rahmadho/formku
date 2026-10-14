@@ -16,7 +16,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
 	resolve: {
 		alias: {
-			'#lib': new URL('./src/lib/index.ts', import.meta.url).pathname
+			'#lib': new URL('./src/lib/index.ts', import.meta.url).pathname,
+			// Alias proyek ($lib) — dipakai modul M2–M4. Ditambahkan agar uji M4
+			// (tests/public-leak.test.ts) dapat mengimpor modul rute yang memakai $lib.
+			$lib: new URL('./src/lib', import.meta.url).pathname
 		}
 	},
 	test: {

@@ -1,0 +1,37 @@
+feat(m3-m4): API CRUD struktur form + API publik (skor, acak, anti-bocor kunci)
+
+Gelombang 2 FormKu. Dibuat sub-agent, DIVERIFIKASI MANDIRI oleh agent utama
+dengan 24 uji end-to-end (scripts/verify-e2e.mjs), semuanya LULUS.
+
+M3 - API CRUD struktur form (auth tenant + isolasi tenant_id):
+- src/lib/server/forms-util.ts: getOwnedForm/getOwnedSection/getOwnedQuestion
+  (JOIN ke forms + filter tenant_id -> cegah IDOR lintas tenant), parsing,
+  validasi, buildSettings/buildCorrect, uniqueFormSlug, loadStructure
+- src/routes/api/forms/* : GET/POST list/create, GET/PUT/DELETE detail,
+  POST publish, GET structure (pohon nested untuk builder)
+- src/routes/api/sections/* dan api/questions/*: CRUD + reorder
+
+M4 - API publik (jantung quiz/exam):
+- src/routes/api/public/forms/[slug]: GET struktur form (teracak via seed,
+  kunci jawaban DIBUANG lewat projectQuestionForPublic whitelist manual)
+- .../start: mulai sesi + verifikasi token (waktu-konstan)
+- .../submit: validasi, penilaian (computeScore), simpan dalam TRANSAKSI,
+  set status submitted/locked, durasi
+- .../event: audit anti-kecurangan (blur/focus_return/paste/copy)
+- tests/public-leak.test.ts: 13 uji pengunci anti-kebocoran
+
+VERIFIKASI MANDIRI agent utama (24/24 LULUS) - bukti nyata, bukan klaim:
+- Isolasi tenant: tenant B akses form tenant A -> 404; daftar B kosong
+- CRUD lengkap: form exam + 1 section + 3 soal pilihan ganda + publish
+- KEAMANAN KRITIS: GET publik & soal teracak TIDAK memuat correct_json/
+  answer_key (dicek via grep pada respons mentah)
+- Skor benar: jawab 2 dari 3 benar (poin 10) -> score=20, max_score=30,
+  passed dihitung sesuai passing_grade 60
+- Submit ulang -> 409; event_type asing ditolak; event blur tersimpan
+
+Gate: npm run check 0 error (1 warning a11y), npm test 166/166 lulus,
+npm run build sukses (adapter-node).
+
+Catatan: M4 memilih desain lebih baik dari kontrak - soal teracak dikembalikan
+langsung oleh GET (seed = response_id / IP), tanpa endpoint /questions terpisah.
+Kontrak diperbarui agar konsisten.
