@@ -13,14 +13,22 @@
 		"allowJs": true,
 		"checkJs": false,
 		"isolatedModules": true,
-		"verbatimModuleSyntax": true,
+		"verbatimModuleSyntax": false,
 		"noEmit": true,
 		"baseUrl": ".",
 		"paths": {
 			"$lib": ["./src/lib"],
-			"$lib/*": ["./src/lib/*"]
+			"$lib/*": ["./src/lib/*"],
+			"./$types": ["./.svelte-kit/types/src/routes/*/"],
+			"./$types.js": ["./.svelte-kit/types/src/routes/*/"]
 		}
 	},
-	"include": ["src/**/*.ts", "src/**/*.svelte", "tests/**/*.ts", "vite.config.ts"],
-	"exclude": ["node_modules", "build", ".svelte-kit"]
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.svelte",
+		".svelte-kit/types/**/*.d.ts",
+		"tests/**/*.ts",
+		"vite.config.ts"
+	],
+	"exclude": ["node_modules", "build", ".svelte-kit/output"]
 }
