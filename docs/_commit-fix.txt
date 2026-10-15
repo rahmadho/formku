@@ -1,0 +1,28 @@
+fix(builder): bangun halaman editor form yang hilang (BUG: tidak bisa buka/buat form)
+
+BUG YANG DILAPORKAN: "tidak bisa membuat / membuka form".
+AKAR MASALAH: route editor `src/routes/(app)/forms/[id]/+page.svelte`
+TIDAK PERNAH DIBUAT — sub-agent M5 kehabisan tool-call sebelum menyelesaikannya.
+Komponen `_ui/*` (Inspector, SettingsPanel, QuestionInspector, PublishPanel,
+Icon, Field, Toggle) sudah ada, tetapi halaman perakit yang merangkainya tidak.
+Akibat: klik form di daftar -> `goto('/forms/<id>')` -> 404/exception, halaman
+tidak berubah. Lolos `npm run check` karena file yang tidak ada tidak menghasilkan
+error tipe.
+
+PERBAIKAN — membangun halaman editor lengkap:
+- Bilah atas: kembali, judul (edit in-place), chip mode/jumlah soal/poin, salin
+  slug, status simpan, tombol Pratinjau + Terbitkan.
+- Kanvas kiri: kartu per bagian (judul dapat diedit), daftar soal dengan tombol
+  naik/turun/hapus, kartu "Tanpa bagian" untuk soal lepas, tombol tambah bagian
+  dan soal, SERET-LEPAS soal antar bagian.
+- Kolom kanan: komponen Inspector (bertab Soal/Setelan/Terbitkan).
+- Keadaan muat/galat/kosong yang ditangani + responsif <=900px.
+
+VERIFIKASI MANDIRI (uji browser sungguhan, bukan klaim):
+- npm run check: 0 error
+- npm run build: sukses (adapter-node)
+- Login demo -> daftar form -> KLIK form -> editor terbuka (2 bagian, 4 soal)
+- "Buat form baru" -> "Buat & buka" -> editor form baru terbuka (0 soal)
+- "Tambah soal" -> soal baru muncul + inspektur pindah ke tab Soal
+- Navigasi kembali ke daftar -> berfungsi
+- Uji visual: penilai menilai 9/10, tanpa glitch/overlap

@@ -1,9 +1,0 @@
-chore(demo): skrip seed data demo + verifikasi alur ujian
-
-- scripts/seed-demo.mjs: buat tenant demo + 3 form contoh (form pendaftaran,
-  kuis pengetahuan umum, ujian matematika dengan timer 10 menit + acak).
-- scripts/verify-ui.mjs: verifikasi UI (M5-M7) end-to-end.
-- scripts/verify-demo-exam.mjs: verifikasi alur ujian demo.
-- scripts/cleanup-test-data.mjs: bersihkan data uji.
-
-Demo publik via Cloudflare Tunnel aktif. Data demo: 3 form siap dicoba.
